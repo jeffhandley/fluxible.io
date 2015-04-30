@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import ApplicationStore from '../stores/ApplicationStore';
+import { provideContext, connectToStores } from 'fluxible/addons';
 
 class Html extends React.Component {
     render() {
@@ -12,7 +12,7 @@ class Html extends React.Component {
             <html id="atomic" className="atomic">
                 <head>
                     <meta charSet="utf-8" />
-                    <title>{this.props.context.getStore(ApplicationStore).getPageTitle()}</title>
+                    <title>{this.props.currentTitle}</title>
                     <meta name="viewport" content="width=device-width, initial-scale=1" />
                     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" />
                     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile" />
@@ -29,5 +29,16 @@ class Html extends React.Component {
         );
     }
 }
+
+// connect to stores
+Html = connectToStores(Html, ['DocStore'], function (stores, props) {
+    return {
+        currentTitle: stores.DocStore.getCurrentTitle() || '',
+        currentDoc: stores.DocStore.getCurrent() || {}
+    };
+});
+
+// and wrap that with context
+Html = provideContext(Html);
 
 export default Html;

@@ -4,7 +4,8 @@
  */
 
 import React from 'react';
-import {NavLink} from 'flux-router-component';
+import { NavLink } from 'fluxible-router';
+import { connectToStores } from 'fluxible/addons';
 import Doc from './Doc.jsx';
 
 class Home extends React.Component {

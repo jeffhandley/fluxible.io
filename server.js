@@ -6,7 +6,7 @@
 import express from 'express';
 import favicon from 'serve-favicon';
 import serialize from 'serialize-javascript';
-import {navigateAction} from 'flux-router-component';
+import { navigateAction } from 'fluxible-router';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import csrf from 'csurf';
@@ -15,8 +15,7 @@ import app from './app';
 import html from './components/Html.jsx';
 import tracking from './configs/tracking';
 import assets from './utils/assets';
-import show404 from './actions/show404';
-import show500 from './actions/show500';
+import DocsService from './services/docs';
 
 const HtmlComponent = React.createFactory(html);
 const server = express();
@@ -26,20 +25,21 @@ server.use(favicon(__dirname + '/assets/images/favicon.ico'));
 server.use('/public', express.static(__dirname + '/build'));
 server.use(cookieParser());
 server.use(bodyParser.json());
-server.use(csrf({cookie: true}));
+server.use(csrf({ cookie: true }));
 
 // Get access to the fetchr plugin instance
 const fetchrPlugin = app.getPlugin('FetchrPlugin');
 
 // Register our services
-fetchrPlugin.registerService(require('./services/docs'));
+fetchrPlugin.registerService(DocsService);
 
 // Set up the fetchr middleware
 server.use(fetchrPlugin.getXhrPath(), fetchrPlugin.getMiddleware());
 
 // Render the app
 function renderApp(res, context) {
-    const renderedApp = React.renderToString(context.createElement());
+    const appElement = context.createElement();
+    const renderedApp = React.renderToString(appElement);
     const exposed = 'window.App=' + serialize(app.dehydrate(context)) + ';';
     const doctype = '<!DOCTYPE html>';
     const componentContext = context.getComponentContext();
@@ -50,6 +50,7 @@ function renderApp(res, context) {
         markup: renderedApp,
         tracking: tracking
     }));
+
     res.send(doctype + html);
 }
 
@@ -63,24 +64,6 @@ server.use(function (req, res, next) {
     });
 
     context.executeAction(navigateAction, { url: req.url }, function (err) {
-        if (err) {
-            if (err.status === 404 || err.statusCode === 404) {
-                res.status(404);
-                context.executeAction(show404, { err: err }, function () {
-                    renderApp(res, context);
-                });
-            }
-            else {
-                res.status(500);
-                context.executeAction(show500, { err: err }, function () {
-                    console.log(err.stack || err);
-                    renderApp(res, context);
-                });
-            }
-
-            return;
-        }
-
         renderApp(res, context);
     });
 });

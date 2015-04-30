@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import {navigateAction} from 'flux-router-component';
+import { navigateAction } from 'fluxible-router';
 
 const DOCS_URL = 'https://github.com/yahoo/fluxible/tree/master';
 
@@ -36,9 +36,9 @@ class Doc extends React.Component {
     render() {
         let editEl;
 
-        if (this.props.currentRoute && this.props.currentRoute.config.githubPath !== -1) {
+        if (this.props.currentRoute && this.props.currentRoute.get('githubPath') !== -1) {
             editEl = (
-                <a href={DOCS_URL + this.props.currentRoute.config.githubPath}
+                <a href={DOCS_URL + this.props.currentRoute.get('githubPath')}
                     className="edit-github Pos-a End-10px T-18px"
                     target="_blank">
                     Edit on Github
@@ -46,10 +46,12 @@ class Doc extends React.Component {
             );
         }
 
+        let markup = (this.props.currentDoc && this.props.currentDoc.content) || '';
+
         return (
             <div id="main" role="main" className="D-tbc--sm Px-10px Pos-r">
                 {editEl}
-                <div onClick={this.onClick} dangerouslySetInnerHTML={{__html: this.props.content}}></div>
+                <div onClick={this.onClick.bind(this)} dangerouslySetInnerHTML={{__html: markup}}></div>
             </div>
         );
     }

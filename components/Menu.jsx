@@ -5,7 +5,7 @@
 
 import React from 'react/addons';
 import cx from 'classnames';
-import {NavLink} from 'flux-router-component';
+import { NavLink } from 'fluxible-router';
 import docsConfig from './../configs/menu';
 
 class Menu extends React.Component {

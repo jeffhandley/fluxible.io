@@ -4,63 +4,59 @@
  */
 /* global document */
 
+import Debug from 'debug';
 import React from 'react';
 import Home from './Home.jsx';
 import Docs from './Docs.jsx';
-import Status500 from './Status500.jsx';
-import Status404 from './Status404.jsx';
-import ApplicationStore from '../stores/ApplicationStore';
-import DocStore from '../stores/DocStore';
-import {RouterMixin} from 'flux-router-component';
-import {NavLink} from 'flux-router-component';
-import {FluxibleMixin} from 'fluxible';
+import { provideContext, connectToStores } from 'fluxible/addons';
+import { handleHistory, NavLink } from 'fluxible-router';
 import TopNav from './TopNav';
+import Status404 from './Status404';
+import Status500 from './Status500';
 import cx from 'classnames';
 
-var Application = React.createClass({
-    mixins: [ RouterMixin, FluxibleMixin ],
+const debug = Debug('MyApp');
 
-    statics: {
-        storeListeners: [ ApplicationStore ]
-    },
+class Application extends React.Component {
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.isNavigateComplete;
+    }
 
-    getInitialState: function () {
-        return this.getState();
-    },
+    componentDidUpdate(prevProps, prevState) {
+        document.title = this.props.currentTitle;
 
-    getState: function () {
-        var appStore = this.getStore(ApplicationStore);
-        var docStore = this.getStore(DocStore);
-        return {
-            currentDoc: docStore.getCurrent() || {},
-            currentPageName: appStore.getCurrentPageName(),
-            pageTitle: appStore.getPageTitle(),
-            route: appStore.getCurrentRoute() || {}
-        };
-    },
-
-    onChange: function () {
-        this.setState(this.getState());
-    },
-
-    render: function () {
-        var hideLogo = false;
-        var Component = this.state.route && this.state.route.config && this.state.route.config.component;
-
-        if (this.state.route && 'home' === this.state.route.name) {
-            hideLogo = true;
+        // log pageview
+        if (ga) {
+            ga('set', {
+                page: this.props.currentRoute && this.props.currentRoute.get('url'),
+                title: this.props.currentTitle
+            });
+            ga('send', 'pageview');
         }
+    }
 
-        if ('500' === this.state.currentPageName) {
-            Component = Status500;
-        } else if ('404' === this.state.currentPageName) {
-            Component = Status404;
-        }
+    render() {
+        debug('rendering', this.props);
 
+        var Handler = this.props.currentRoute && this.props.currentRoute.get('handler');
+        var routeName = this.props.currentRoute && this.props.currentRoute.get('name');
+        var hideLogo = routeName === 'home';
         var logoClasses = cx({
             'V-h': hideLogo,
             'Va-m Fz-20px Lh-1.2 C-#fff Td-n:h': true
         });
+
+        if (Handler) {
+            if (this.props.currentNavigateError) {
+                Handler = <Status500 />;
+            }
+            else {
+                Handler = <Handler currentDoc={this.props.currentDoc} />;
+            }
+        }
+        else {
+            Handler = <Status404 />
+        }
 
         return (
             <div className="H-100%">
@@ -69,10 +65,10 @@ var Application = React.createClass({
                         <div className="innerwrapper spaceBetween Mx-a--sm W-90%--sm W-a--sm">
                             <NavLink className={logoClasses} routeName="home">
                                 Fluxible
-                            </NavLink> <TopNav selected={this.state.route.name} />
+                            </NavLink> <TopNav selected={routeName} />
                         </div>
                     </div>
-                    <Component doc={this.state.currentDoc} currentRoute={this.state.route} />
+                    {Handler}
                 </div>
                 <div id="footer" className="P-20px Bdt-1" role="footer">
                     <div className="innerwrapper spaceBetween Mx-a--sm W-90%--sm W-a--sm">
@@ -81,26 +77,21 @@ var Application = React.createClass({
                 </div>
             </div>
         );
-    },
-
-    componentDidUpdate: function (prevProps, prevState) {
-        var newState = this.state;
-
-        if (newState.pageTitle === prevState.pageTitle) {
-            return;
-        }
-
-        document.title = newState.pageTitle;
-
-        // log pageview
-        if (ga) {
-            ga('set', {
-                page: newState.route.url,
-                title: newState.pageTitle
-            });
-            ga('send', 'pageview');
-        }
     }
+}
+
+// connect to stores
+Application = connectToStores(Application, ['DocStore'], function (stores, props) {
+    return {
+        currentTitle: stores.DocStore.getCurrentTitle() || '',
+        currentDoc: stores.DocStore.getCurrent() || {}
+    };
 });
+
+// wrap with history handler
+Application = handleHistory(Application);
+
+// and wrap that with context
+Application = provideContext(Application);
 
 export default Application;

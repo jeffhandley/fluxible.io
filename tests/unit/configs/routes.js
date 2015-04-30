@@ -4,22 +4,26 @@
  */
 /* global describe, it, beforeEach */
 'use strict';
-import {expect} from 'chai';
-import MockContextLib from 'fluxible/utils/MockActionContext';
+import Immutable from 'immutable';
+import { expect } from 'chai';
+import { createMockActionContext } from 'fluxible/utils';
 import MockService from 'fluxible-plugin-fetchr/utils/MockServiceManager';
 import DocStore from '../../../stores/DocStore';
 import routes from '../../../configs/routes.js';
 import docResponse from '../../fixtures/doc-response.js';
 import mockery from 'mockery';
 
-let MockContext = MockContextLib();
-MockContext.Dispatcher.registerStore(DocStore);
+let MockContext = createMockActionContext({
+    stores: [DocStore]
+});
 
 describe('routes', function () {
     let context;
 
     beforeEach(function () {
-        context = new MockContext();
+        context = createMockActionContext({
+            stores: [DocStore]
+        });;
         context.service = new MockService();
         context.service.setService('docs', function (method, params, config, callback) {
             if (params.emulateError) {
@@ -47,11 +51,11 @@ describe('routes', function () {
     });
 
     it('should execute the home action', function (done) {
-        context.executeAction(routes.home.action, {
-            config: {
-                githubPath: 'foo/bar.md'
-            }
-        }, function (err) {
+        let params = Immutable.fromJS({
+            githubPath: 'foo/bar.md'
+        });
+
+        context.executeAction(routes.home.action, params, function (err) {
             if (err) {
                 return done(err);
             }
@@ -63,13 +67,11 @@ describe('routes', function () {
     });
 
     it('should execute the docs action (without type param)', function (done) {
-        let payload = {
-            config: {
-                githubPath: 'foo/bar.md'
-            }
-        };
+        let params = Immutable.fromJS({
+            githubPath: 'foo/bar.md'
+        });
 
-        context.executeAction(routes.quickStart.action, payload, function (err) {
+        context.executeAction(routes.quickStart.action, params, function (err) {
             if (err) {
                 return done(err);
             }
