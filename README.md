@@ -12,7 +12,7 @@ The doc site for [Fluxible](https://github.com/yahoo/fluxible).
 $ npm install
 ```
 
-There is also a /secrets.example.js file that you need to copy to /secrets.js with your GitHub API to allow the app to access the page content it needs from github.
+There is also a `/secrets.example.js` file that you need to copy to `/secrets.js` with your GitHub API to allow the app to access the page content it needs from GitHub.
 
 
 ## Run the app
