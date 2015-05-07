@@ -9,6 +9,11 @@
 // some environments run the app from a different directory
 process.chdir(__dirname);
 
+// config babel cache path
+if (process.env.manhattan_context__cache_dir) {
+    process.env.BABEL_CACHE_PATH = process.env.manhattan_context__cache_dir;
+}
+
 require('babel/register');
 
 module.exports = require('./server');
