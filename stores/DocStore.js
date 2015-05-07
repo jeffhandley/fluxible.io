@@ -3,12 +3,20 @@
  * Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
  */
 
-import {BaseStore} from 'fluxible/addons';
+import { BaseStore } from 'fluxible/addons';
 
 class DocStore extends BaseStore {
     constructor(dispatcher) {
+        super();
+
         this.docs = {};
         this.current = {};
+        this.currentTitle = '';
+    }
+
+    _receiveTitle(payload) {
+        this.currentTitle = payload.pageTitle;
+        this.emitChange();
     }
 
     _receiveDoc(doc) {
@@ -33,6 +41,10 @@ class DocStore extends BaseStore {
         return this.current;
     }
 
+    getCurrentTitle() {
+        return this.currentTitle;
+    }
+
     dehydrate() {
         return {
             docs: this.docs,
@@ -46,8 +58,10 @@ class DocStore extends BaseStore {
     }
 }
 
-DocStore.storeName = 'DocsStore';
+DocStore.storeName = 'DocStore';
+
 DocStore.handlers = {
+    'UPDATE_PAGE_TITLE': '_receiveTitle',
     'RECEIVE_DOC_SUCCESS': '_receiveDoc'
 };
 

@@ -6,8 +6,7 @@
 import DocStore from '../stores/DocStore';
 
 export default function (context, route, done) {
-    let routeConfig = route.config || {};
-    let githubPath = routeConfig.githubPath;
+    let githubPath = route.get('githubPath');
 
     if (!githubPath) {
         let err404 = new Error('Document not found');
@@ -15,7 +14,7 @@ export default function (context, route, done) {
         return done(err404);
     }
 
-    let pageTitle = routeConfig.pageTitle || (routeConfig.pageTitlePrefix + ' | Fluxible');
+    let pageTitle = route.get('pageTitle') || (route.get('pageTitlePrefix') + ' | Fluxible');
 
     // Load from cache
     let docFromCache = context.getStore(DocStore).get(githubPath);
@@ -30,7 +29,7 @@ export default function (context, route, done) {
     }
 
     // Load from service
-    context.service.read('docs', {path: githubPath}, {}, function (err, data) {
+    context.service.read('docs', { path: githubPath }, {}, function (err, data) {
         if (err) {
             return done(err);
         }

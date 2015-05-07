@@ -3,35 +3,38 @@
  * Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
  */
 
-import React from 'react';
-import FluxibleApp from 'fluxible';
+import Debug from 'debug';
+import Fluxible from 'fluxible';
 import fetchrPlugin from 'fluxible-plugin-fetchr';
-import routrPlugin from 'fluxible-plugin-routr';
 import routes from './configs/routes';
-import show500 from './actions/show500';
-import show404 from './actions/show404';
+import Application from './components/Application.jsx';
+import DocStore from './stores/DocStore';
+import { RouteStore } from 'fluxible-router';
 
-const app = new FluxibleApp({
-    component: React.createFactory(require('./components/Application.jsx')),
+const debug = Debug('app.js');
+const MyRouteStore = RouteStore.withStaticRoutes(routes);
+
+const app = new Fluxible({
+    component: Application,
     componentActionHandler: function (context, payload, done) {
         if (payload.err) {
-            if (payload.err.statusCode && payload.err.statusCode === 404) {
-                context.executeAction(show404, payload, done);
+            if (payload.err.statusCode === 404) {
+                debug('component 404 error', payload.err);
             }
             else {
-                console.log(payload.err.stack || payload.err);
-                context.executeAction(show500, payload, done);
+                debug('component exception', payload.err);
             }
+
             return;
         }
+
         done();
     }
 });
 
 app.plug(fetchrPlugin({ xhrPath: '/_api' }));
-app.plug(routrPlugin({ routes: routes }));
 
-app.registerStore(require('./stores/DocStore'));
-app.registerStore(require('./stores/ApplicationStore'));
+app.registerStore(DocStore);
+app.registerStore(MyRouteStore);
 
 export default app;

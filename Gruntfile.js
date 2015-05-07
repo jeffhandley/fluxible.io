@@ -11,6 +11,11 @@ var fs = require('fs');
 // format `*.[chunkhash].min.js`
 var CHUNK_REGEX = /^([A-Za-z0-9_\-]+)\..*/;
 
+var nodemonArgs = [];
+if (process.env.DEBUGGER) {
+    nodemonArgs.push('--debug');
+}
+
 module.exports = function (grunt) {
     grunt.initConfig({
         // project variables
@@ -154,8 +159,9 @@ module.exports = function (grunt) {
                 script: './start.js',
                 options: {
                     ignore: ['<%= project.build %>/**'],
-                    ext: 'js,jsx,md'
-                }
+                    ext: 'js,jsx,md',
+                    nodeArgs: nodemonArgs
+                },
             }
         },
 

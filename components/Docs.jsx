@@ -7,6 +7,7 @@ import React from 'react';
 import Menu from './Menu.jsx';
 import Doc from './Doc.jsx';
 import cx from 'classnames';
+import { handleRoute } from 'fluxible-router';
 
 class Docs extends React.Component {
     constructor(props, context) {
@@ -36,16 +37,19 @@ class Docs extends React.Component {
 
         return (
             <div id="docs" className={wrapperClasses}>
-                <button onClick={this.handleMenuToggle} id="toggleMenuButton" className="menu-button D-n--sm Pos-a resetButton End-0 Z-7 Mend-10px">
+                <button onClick={this.handleMenuToggle.bind(this)} id="toggleMenuButton" className="menu-button D-n--sm Pos-a resetButton End-0 Z-7 Mend-10px">
                     <i className="fa fa-bars"></i>
                     <b className="hidden">Toggle the menu</b>
                 </button>
-                <Menu selected={this.props.currentRoute.name} onClickEvent={this.hideMenu} />
-                <Doc content={this.props.doc.content} currentRoute={this.props.currentRoute} />
+                <Menu selected={this.props.currentRoute && this.props.currentRoute.get('name')} onClickEvent={this.hideMenu.bind(this)} />
+                <Doc currentDoc={this.props.currentDoc} />
                 <div id="overlay" className="D-n Z-3 Pos-f T-0 Start-0 W-100% H-100%"></div>
             </div>
         );
     }
 }
+
+// wrap with route handler
+Docs = handleRoute(Docs);
 
 export default Docs;
