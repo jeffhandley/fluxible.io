@@ -161,7 +161,7 @@ module.exports = function (grunt) {
                     ignore: ['<%= project.build %>/**'],
                     ext: 'js,jsx,md',
                     nodeArgs: nodemonArgs
-                },
+                }
             }
         },
 
