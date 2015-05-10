@@ -42,12 +42,17 @@ class Docs extends React.Component {
                     <b className="hidden">Toggle the menu</b>
                 </button>
                 <Menu selected={this.props.currentRoute && this.props.currentRoute.get('name')} onClickEvent={this.hideMenu.bind(this)} />
-                <Doc currentDoc={this.props.currentDoc} />
+                <Doc currentDoc={this.props.currentDoc} currentRoute={this.props.currentRoute} />
                 <div id="overlay" className="D-n Z-3 Pos-f T-0 Start-0 W-100% H-100%"></div>
             </div>
         );
     }
 }
+
+Docs.propTypes = {
+    currentDoc: React.PropTypes.object.isRequired,
+    currentRoute: React.PropTypes.object.isRequired
+};
 
 // wrap with route handler
 Docs = handleRoute(Docs);

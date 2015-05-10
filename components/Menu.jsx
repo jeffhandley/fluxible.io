@@ -24,7 +24,15 @@ class Menu extends React.Component {
                 let classList = cx({
                     'selected': self.props.selected === link.routeName
                 });
-                submenu.push(<li key={link.label} className={classList}><NavLink className={link.label + ' D-b Td-n:h Py-5px'} routeName={link.routeName}>{link.label}</NavLink></li>);
+
+                let linkNode = (<NavLink className={link.label + ' D-b Td-n:h Py-5px'} routeName={link.routeName}>{link.label}</NavLink>);
+
+                // support off site links
+                if (link.url) {
+                    linkNode = (<NavLink className={link.label + ' D-b Td-n:h Py-5px'} href={link.url}>{link.label}</NavLink>);
+                }
+
+                submenu.push(<li key={link.label} className={classList}>{linkNode}</li>);
             });
 
             if (submenu.length) {
