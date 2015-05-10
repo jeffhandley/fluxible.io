@@ -61,4 +61,9 @@ Doc.contextTypes = {
     executeAction: React.PropTypes.func
 };
 
+Doc.propTypes = {
+    currentDoc: React.PropTypes.object.isRequired,
+    currentRoute: React.PropTypes.object.isRequired
+};
+
 export default Doc;
