@@ -80,6 +80,10 @@ export default [
             {
                 label: 'Data Services',
                 routeName: 'dataServices'
+            },
+            {
+                label: 'Routing',
+                url: 'https://github.com/yahoo/fluxible-router#fluxible-router'
             }
         ]
     },
